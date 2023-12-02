@@ -145,7 +145,7 @@ configure_sshd_in_jail_conf() {
     local findtime=$(get_input_with_default "Enter findtime (e.g., 1w)" "1w")
     local bantime=$(get_input_with_default "Enter bantime (e.g., 52w)" "52w")
 
-    awk -v ignoreip=”$ignoreip” -v maxretry="$maxretry" -v findtime="$findtime" -v bantime="$bantime" '
+    awk -v ignoreip="$ignoreip" -v maxretry="$maxretry" -v findtime="$findtime" -v bantime="$bantime" '
     /^\[sshd\]$/ {
         print;
         print "enabled = true";
