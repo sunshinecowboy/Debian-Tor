@@ -138,25 +138,59 @@ configure_sshd_in_jail_conf() {
     local temp_file=$(mktemp)
 
     # Get user inputs with defaults
+    local ignoreip=$(get_input_with_default "Enter ignoreip" "127.0.0.1")    
     local maxretry=$(get_input_with_default "Enter maxretry" "5")
     local findtime=$(get_input_with_default "Enter findtime (e.g., 1w)" "1w")
     local bantime=$(get_input_with_default "Enter bantime (e.g., 52w)" "52w")
 
-    awk -v maxretry="$maxretry" -v findtime="$findtime" -v bantime="$bantime" '
+    awk -v ignoreip=”$ignoreip” -v maxretry="$maxretry" -v findtime="$findtime" -v bantime="$bantime" '
     /^\[sshd\]$/ {
         print;
         print "enabled = true";
         print "maxretry = " maxretry;
         print "findtime = " findtime;
         print "bantime = " bantime;
+        print “ignoreip = " ignoreip;
         next;
     }
     { print }
     ' "$jail_conf_path" > "$temp_file" && mv "$temp_file" "$jail_conf_path"
 }
-
 # Configure sshd in jail.conf with defaults
 configure_sshd_in_jail_conf
+
+# Function to configure fail2ban settings
+configure_fail2ban_settings() {
+    local fail2ban_config="/etc/fail2ban/fail2ban.conf"
+    local temp_file=$(mktemp)
+
+    # Prompt for allowing ipv6
+    echo "Do you want fail2ban to allow IPv6? [yes/no/auto]"
+    read -r allowipv6
+    case "$allowipv6" in
+        yes|YES|y|Y) allowipv6="yes";;
+        no|NO|n|N) allowipv6="no";;
+        auto|AUTO|a|A) allowipv6="auto";;
+        *) echo "Invalid input. Defaulting to 'auto'."; allowipv6="auto";;
+    esac
+
+    # Prompt for dbpurgeage
+    local dbpurgeage
+    dbpurgeage=$(get_input_with_default "Enter dbpurgeage" "1000d")
+
+    # Update fail2ban config
+    awk -v allowipv6="$allowipv6" -v dbpurgeage="$dbpurgeage" '
+    /^#?allowipv6/ { print "allowipv6 = " allowipv6; next }
+    /^#?dbpurgeage/ { print "dbpurgeage = " dbpurgeage; next }
+    { print }
+    ' "$fail2ban_config" > "$temp_file" && mv "$temp_file" "$fail2ban_config"
+
+cp /etc/fail2ban/fail2ban.conf /etc/fail2ban/fail2ban.local
+cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
+}
+
+# Call the function
+configure_fail2ban_settings
 
 # Set Permissions for tor
 chown -R debian-tor:debian-tor /var/lib/tor
@@ -170,13 +204,6 @@ systemctl start rsyslog
 # Start Tor service
 systemctl enable tor
 systemctl start tor
-
-# Add functionality to the configuration files
-echo allowipv6 = auto >> /etc/fail2ban/fail2ban.conf
-
-# Create Locals
-cp /etc/fail2ban/fail2ban.conf /etc/fail2ban/fail2ban.local 
-cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
 
 # Start Fail2Ban service
 systemctl enable fail2ban
