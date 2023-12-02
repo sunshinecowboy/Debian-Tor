@@ -80,7 +80,9 @@ ufw default deny incoming
 ufw default allow outgoing
 ufw allow $SSHPORT/tcp
 ufw allow $ORPort/tcp
+if [ "$SocksPort" != 0 ]; then
 ufw allow $SocksPort/tcp
+fi
 ufw enable
 setcap CAP_NET_BIND_SERVICE=+eip /usr/bin/tor
 
