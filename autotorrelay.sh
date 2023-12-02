@@ -79,7 +79,6 @@ echo "Setting up and enabling firewall........"
 ufw default deny incoming
 ufw default allow outgoing
 ufw allow $SSHPORT/tcp
-ufw allow $ControlPort/tcp
 ufw allow $ORPort/tcp
 ufw allow $SocksPort/tcp
 ufw enable
