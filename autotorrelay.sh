@@ -152,7 +152,7 @@ configure_sshd_in_jail_conf() {
         print "maxretry = " maxretry;
         print "findtime = " findtime;
         print "bantime = " bantime;
-        print “ignoreip = " ignoreip;
+        print "ignoreip = " ignoreip;
         next;
     }
     { print }
