@@ -187,12 +187,14 @@ configure_fail2ban_settings() {
     { print }
     ' "$fail2ban_config" > "$temp_file" && mv "$temp_file" "$fail2ban_config"
 
-cp /etc/fail2ban/fail2ban.conf /etc/fail2ban/fail2ban.local
-cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
 }
 
 # Call the function
 configure_fail2ban_settings
+
+#Copy fail2ban config files to *.local files
+cp /etc/fail2ban/fail2ban.conf /etc/fail2ban/fail2ban.local
+cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
 
 # Set Permissions for tor
 chown -R debian-tor:debian-tor /var/lib/tor
