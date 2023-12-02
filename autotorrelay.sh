@@ -38,7 +38,7 @@ echo "Updating system and installing necessary packages........."
 
 # Update the system and install necessary packages
 apt update && apt upgrade -y
-apt install -y ufw fish tor nyx vim fail2ban htop unzip rsyslog
+apt install -y ufw tor nyx fail2ban rsyslog
 
 # Prompt for necessary variables with default values
 get_input_with_default() {
@@ -80,7 +80,6 @@ ufw default deny incoming
 ufw default allow outgoing
 ufw allow $SSHPORT/tcp
 ufw allow $ControlPort/tcp
-ufw allow $DirPort/tcp
 ufw allow $ORPort/tcp
 ufw allow $SocksPort/tcp
 ufw enable
@@ -111,10 +110,6 @@ configure_sshd_settings() {
     local sshd_config="/etc/ssh/sshd_config"
     local temp_file=$(mktemp)
 
-    # Prompt for SSH port
-    read -p "Enter SSH Port [default: 22]: " ssh_port
-    ssh_port=${ssh_port:-22}
-
     # Prompt for allowing root login
     echo "Do you want to allow root to SSH? [yes/no]"
     read allow_root_ssh
@@ -125,7 +120,7 @@ configure_sshd_settings() {
     esac
 
     # Update sshd_config
-    awk -v permit_root_login="$permit_root_login" -v ssh_port="$ssh_port" '
+    awk -v permit_root_login="$permit_root_login" -v ssh_port="$SSHPORT" '
     /^#?Port/ { print "Port " ssh_port; next }
     /^#?PermitRootLogin/ { print "PermitRootLogin " permit_root_login; next }
     { print }
