@@ -58,20 +58,20 @@ ContactInfo=$(get_input_with_default "Enter Contact Info (email)" "user@example.
 RelayBandwidthRate=$(get_input_with_default "Enter Relay Bandwidth Rate" "500 KB")
 RelayBandwidthBurst=$(get_input_with_default "Enter Relay Bandwidth Burst" "1000 KB")
 
-# Prompt for Tor Control Port password and hash it
-while true; do
-    echo "Enter a password for Tor Control Port:"
-    read -s tor_password
-    echo "Confirm password:"
-    read -s tor_password_confirm
-    if [ "$tor_password" = "$tor_password_confirm" ]; then
-        break
-    else
-        echo "Passwords do not match. Please try again."
-    fi
-done
-
-HashedControlPassword=$(tor --hash-password $tor_password | tail -n 1)
+## Prompt for Tor Control Port password and hash it
+#while true; do
+#    echo "Enter a password for Tor Control Port:"
+#    read -s tor_password
+#    echo "Confirm password:"
+#    read -s tor_password_confirm
+#    if [ "$tor_password" = "$tor_password_confirm" ]; then
+#        break
+#    else
+#        echo "Passwords do not match. Please try again."
+#    fi
+#done
+#
+#HashedControlPassword=$(tor --hash-password $tor_password | tail -n 1)
 
 echo "Setting up and enabling firewall........"
 
@@ -100,7 +100,7 @@ echo "Creating Tor Relay config file at /etc/tor/torrc........."
   echo ContactInfo $ContactInfo
   echo RelayBandwidthRate $RelayBandwidthRate
   echo RelayBandwidthBurst $RelayBandwidthBurst
-  echo HashedControlPassword $HashedControlPassword
+ # echo HashedControlPassword $HashedControlPassword
   echo ExitRelay 0
 } > /etc/tor/torrc
 
