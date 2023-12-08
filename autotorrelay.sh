@@ -57,21 +57,35 @@ TorNickname=$(get_input_with_default "Enter Tor Nickname" "ididntreadtheconfig")
 ContactInfo=$(get_input_with_default "Enter Contact Info (email)" "user@example.com")
 RelayBandwidthRate=$(get_input_with_default "Enter Relay Bandwidth Rate" "500 KB")
 RelayBandwidthBurst=$(get_input_with_default "Enter Relay Bandwidth Burst" "1000 KB")
+echo "Choose authentication method for Tor Control Port: [1] Hashed Password, [2] Cookie Authentication"
+read -p "Enter your choice (1 or 2): " authentication_choice
 
-## Prompt for Tor Control Port password and hash it
-#while true; do
-#    echo "Enter a password for Tor Control Port:"
-#    read -s tor_password
-#    echo "Confirm password:"
-#    read -s tor_password_confirm
-#    if [ "$tor_password" = "$tor_password_confirm" ]; then
-#        break
-#    else
-#        echo "Passwords do not match. Please try again."
-#    fi
-#done
-#
-#HashedControlPassword=$(tor --hash-password $tor_password | tail -n 1)
+###Cookie or Password Authentication
+case $authentication_choice in
+    1)
+        # Hashed password authentication
+        while true; do
+            echo "Enter a password for Tor Control Port:"
+            read -s tor_password
+            echo "Confirm password:"
+            read -s tor_password_confirm
+            if [ "$tor_password" = "$tor_password_confirm" ]; then
+                break
+            else
+                echo "Passwords do not match. Please try again."
+            fi
+        done
+        HashedControlPassword=$(tor --hash-password $tor_password | tail -n 1)
+        ;;
+    2)
+        # Cookie authentication
+        echo "Configuring cookie authentication..."
+          set $CookieAuthentication="1" ;;
+    *)
+        echo "Invalid choice. Exiting."
+        exit 1
+        ;;
+esac
 
 echo "Setting up and enabling firewall........"
 
@@ -100,7 +114,10 @@ echo "Creating Tor Relay config file at /etc/tor/torrc........."
   echo ContactInfo $ContactInfo
   echo RelayBandwidthRate $RelayBandwidthRate
   echo RelayBandwidthBurst $RelayBandwidthBurst
- # echo HashedControlPassword $HashedControlPassword
+  if [ "$authentication_choice" = "1" ] then
+  echo HashedControlPassword $HashedControlPassword
+  else echo CookieAuthentication $CookieAuthentication
+  fi
   echo ExitRelay 0
 } > /etc/tor/torrc
 
