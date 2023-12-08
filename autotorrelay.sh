@@ -114,9 +114,10 @@ echo "Creating Tor Relay config file at /etc/tor/torrc........."
   echo ContactInfo $ContactInfo
   echo RelayBandwidthRate $RelayBandwidthRate
   echo RelayBandwidthBurst $RelayBandwidthBurst
-  if [ "$authentication_choice" = "1" ] then
+  if [ "$authentication_choice" = "1" ] 
+  then
   echo HashedControlPassword $HashedControlPassword
-  else echo CookieAuthentication $CookieAuthentication
+  else echo CookieAuthentication 1
   fi
   echo ExitRelay 0
 } > /etc/tor/torrc
@@ -231,5 +232,9 @@ systemctl enable fail2ban
 systemctl start fail2ban
 systemctl restart tor
 
+if [ "$authentication_choice" = "1" ]
+then
 echo "Complete! Your hardened tor server is up and running! To view it's performace type nyx -i 127.0.0.1:$ControlPort and enter your password!"
-
+else
+echo "Complete! Your hardened tor server is up and running! To view it's performace type nyx -i 127.0.0.1:$ControlPort !"
+fi
